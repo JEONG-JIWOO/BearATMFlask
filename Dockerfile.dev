@@ -1,0 +1,9 @@
+FROM python:3.8
+
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends git
+RUN git clone -b dev https://github.com/JEONG-JIWOO/BearATMFlask.git
+WORKDIR ./BearATMFlask
+RUN python3 -m pip install -r requirements.txt
+
+CMD ["flask", "run" ,"--host=0.0.0.0"]
