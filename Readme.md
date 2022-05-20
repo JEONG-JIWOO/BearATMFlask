@@ -17,11 +17,19 @@ Simple ATM service with Python Flask Server
 
 # Install & Run
 
+### Run ATM server
 
+    docker-compose up
 
-# Test
+### Run Client_example
 
-Test.py in unittest 
+    python3 -m pip install requests
+    python3 client_example.py
+
+### Run Test
+
+    python3 -m pip install requests
+    python3 test.py
 
 
 # Example code
