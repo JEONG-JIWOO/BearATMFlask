@@ -6,7 +6,7 @@ jiwoo - jeong
 import os
 from datetime import timedelta
 from flask import Flask, request, session, jsonify
-import bankapi
+import bank_api
 
 app = Flask(__name__)
 app.secret_key = os.urandom(12)
@@ -52,11 +52,11 @@ def enter_pin():
         return "Insert card first", 400
     if pin_number is None:
         return "No pin number ", 400
-    if not bankapi.validate_pin(session['card_number'], pin_number):
+    if not bank_api.validate_pin(session['card_number'], pin_number):
         return "Wrong Pin number", 401
 
     # save access token to session
-    session['access_token'] = bankapi.login(session['card_number'], pin_number)
+    session['access_token'] = bank_api.login(session['card_number'], pin_number)
     return 'Authorized'
 
 
@@ -69,7 +69,7 @@ def list_account():
     if 'access_token' not in session:
         return "Insert card first", 400
 
-    session['account_list'] = bankapi.list_account(session['access_token'])
+    session['account_list'] = bank_api.list_account(session['access_token'])
     return jsonify(session['account_list'])
 
 
@@ -86,9 +86,9 @@ def select_account():
     if not account_id.isdigit():
         return "Wrong Account ID", 401
     if 'account_list' not in session:
-        session['account_list'] = bankapi.list_account(session['access_token'])
+        session['account_list'] = bank_api.list_account(session['access_token'])
 
-    account = bankapi.inquire(session['access_token'], account_id)
+    account = bank_api.inquire(session['access_token'], account_id)
     if account is not None:
         session['selected_account'] = account
         return jsonify(account)
@@ -109,25 +109,25 @@ def banking():
 
     action = request.form['action']
     if action == 'inquire':
-        return bankapi.inquire(session['access_token'], session['selected_account']['id'])
+        return bank_api.inquire(session['access_token'], session['selected_account']['id'])
 
     amount = request.form['amount']
     if not amount.isdigit() or int(amount) < 0:
         return "Invalid amount", 400
 
     # before Banking, refresh Account Data
-    session['selected_account'] = bankapi.inquire(session['access_token'],
-                                                  session['selected_account']['id'])
+    session['selected_account'] = bank_api.inquire(session['access_token'],
+                                                   session['selected_account']['id'])
 
     result = None
     if action == 'deposit':
-        result = bankapi.deposit(session['access_token'],
-                                 session['selected_account']['id'], int(amount))
+        result = bank_api.deposit(session['access_token'],
+                                  session['selected_account']['id'], int(amount))
     elif action == "withdraw":
         if session['selected_account']['balance'] < int(amount):
             return "not Enough Balance", 401
-        result = bankapi.withdraw(session['access_token'],
-                                  session['selected_account']['id'], int(amount))
+        result = bank_api.withdraw(session['access_token'],
+                                   session['selected_account']['id'], int(amount))
 
     if result:
         return "success"
