@@ -106,6 +106,6 @@ def withdraw(access_token, account_id, amount):
 
     if account['balance'] < amount:
         return False
-    else:
-        account['balance'] -= amount
-        return True
+
+    account['balance'] -= amount
+    return True
